@@ -1,17 +1,13 @@
-version: '3.8'
 
 services:
   # =========================================================================
-  # CENTRAL MESSAGE BUS (Unified Apache Kafka Broker using KRaft mode)
+  # CENTRAL MESSAGE BUS (Unified Apache Kafka Broker - KRaft Mode)
   # =========================================================================
-  yaku-kafka:
-    image: apache/kafka:latest
+  kafka:
+    image: 'apache/kafka:latest'
     container_name: yaku-kafka
     ports:
-      # Kafka unifies all cluster communication.
-      # Mapped to 9092 as required by equipment-service.
-      # services targeting 9093/9094 will also bridge via localhost network listeners.
-      - "9092:9092"
+      - '9092:9092'
     environment:
       - 'CLUSTER_ID=5L6g3nShT-eMCtK--X86sw'
       - 'KAFKA_PROCESS_ROLES=broker,controller'
@@ -26,12 +22,12 @@ services:
       - yaku-network
 
   # =========================================================================
-  # DATABASES LAYER (Configured strictly matching your infrastructure matrix)
+  # DATABASES LAYER (Configured for PostgreSQL 18+ Version-Specific Paths)
   # =========================================================================
 
   # 1. Database for equipment-service (Port: 5432)
   equipment-db:
-    image: postgres:16
+    image: postgres:latest
     container_name: yaku-equipment-db
     ports:
       - "5432:5432"
@@ -40,13 +36,14 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
     volumes:
-      - equipment_data:/var/lib/postgresql/data
+      # Target path updated to root data mount to satisfy version cluster sub-directories
+      - equipment_data:/var/lib/postgresql
     networks:
       - yaku-network
 
   # 2. Database for subscription-service (Port: 5433)
   subscription-db:
-    image: postgres:16
+    image: postgres:latest
     container_name: yaku-subscription-db
     ports:
       - "5433:5432"
@@ -55,29 +52,28 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
     volumes:
-      - subscription_data:/var/lib/postgresql/data
+      - subscription_data:/var/lib/postgresql
     networks:
       - yaku-network
 
   # 3. Database for iam-service (Port: 5434)
   iam-db:
-    image: postgres:16
+    image: postgres:latest
     container_name: yaku-iam-db
     ports:
       - "5434:5432"
     environment:
-      # Named 'yaku_iam' to align with standard convention and context profiles
       - POSTGRES_DB=yaku_iam
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
     volumes:
-      - iam_data:/var/lib/postgresql/data
+      - iam_data:/var/lib/postgresql
     networks:
       - yaku-network
 
   # 4. Database for notification-service (Port: 5435)
   notification-db:
-    image: postgres:16
+    image: postgres:latest
     container_name: yaku-notification-db
     ports:
       - "5435:5432"
@@ -86,7 +82,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
     volumes:
-      - notification_data:/var/lib/postgresql/data
+      - notification_data:/var/lib/postgresql
     networks:
       - yaku-network
 
