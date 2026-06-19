@@ -88,6 +88,21 @@ services:
     networks:
       - yaku-network
 
+  # 5. Database for telemetry-service (Port: 5436)
+  telemetry-db:
+    image: postgres:latest
+    container_name: yaku-telemetry-db
+    ports:
+      - "5436:5432"
+    environment:
+      - POSTGRES_DB=yaku_telemetry
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - telemetry_data:/var/lib/postgresql
+    networks:
+      - yaku-network
+
 # =========================================================================
 # VOLUMES & NETWORKS DEFINITIONS
 # =========================================================================
@@ -99,6 +114,8 @@ volumes:
   iam_data:
     driver: local
   notification_data:
+    driver: local
+  telemetry_data:
     driver: local
 
 networks:
